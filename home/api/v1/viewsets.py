@@ -34,31 +34,52 @@ class LoginViewSet(ViewSet):
         user_serializer = UserSerializer(user)
         return Response({"token": token.key, "user": user_serializer.data})
 
+class PrimaryKeyException(Exception):
+    pass 
+
+class UserAuthException(Exception):
+    pass
 
 class AppViewSet(ModelViewSet):
     serializer_class = AppSerializer
     http_method_names = ["get", "post", "put", "patch", "delete"]
     queryset = App.objects.all()
 
-    # def list(self, request):
-    #     objects = App.objects.all()
-    #     serializer = self.serializer_class(objects, many=True)
-    #     return Response(serializer.data)
+    def retrieve(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for single App GET.')
 
-    # def create(self, request):
-    #     pass
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().retrieve(request, pk)
+        raise UserAuthException('Request User does not own app.')
 
-    # def retrieve(self, request, pk=None):
-    #     pass
+    def update(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for App POST.')
 
-    # def update(self, request, pk=None):
-    #     pass
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().update(request, pk)
+        raise UserAuthException('Request User does not own app.')
 
-    # def partial_update(self, request, pk=None):
-    #     pass
+    def partial_update(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for App POST.')
 
-    # def destroy(self, request, pk=None):
-    #     pass 
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().partial_update(request, pk)
+        raise UserAuthException('Request User does not own app.')
+
+    def destroy(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for App POST.')
+
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().destroy(request, pk)
+        raise UserAuthException('Request User does not own app.') 
 
 
 class PlanViewSet(ModelViewSet):
@@ -66,29 +87,26 @@ class PlanViewSet(ModelViewSet):
     http_method_names = ["get"]
     queryset = Plan.objects.all()
 
-    # def list(self, request):
-    #     pass
-
-    # def retrieve(self, request, pk=None):
-    #     pass
-
 
 class SubscriptionViewSet(ModelViewSet):
     serializer_class = SubscriptionSerializer
     http_method_names = ["get", "post", "put", "patch"]
     queryset = Subscription.objects.all()
 
-    # def list(self, request):
-    #     pass
+    def update(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for App POST.')
 
-    # def create(self, request):
-    #     pass
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().update(request, pk)
+        raise UserAuthException('Request User does not own app.')
 
-    # def retrieve(self, request, pk=None):
-    #     pass
+    def partial_update(self, request, pk=None):
+        if pk == None:
+            raise PrimaryKeyException('Primary key is required for App POST.')
 
-    # def update(self, request, pk=None):
-    #     pass
-
-    # def partial_update(self, request, pk=None):
-    #     pass
+        requested_app = App.objects.get(id=pk)
+        if request.user == requested_app.user:
+            return super().partial_update(request, pk)
+        raise UserAuthException('Request User does not own app.')
